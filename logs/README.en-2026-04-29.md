@@ -179,6 +179,7 @@ All agents share three operating principles:
 - `email_archive` — Skill: email_archive
 - `email_triage` — Skill: email_triage
 - `fetch_unread`
+- `generate_public_readme` — Skill: generate_public_readme
 - `get_mail_body` — Skill: get_mail_body
 - `invoice_ebookkeeping_check` — Skill: invoice_ebookkeeping_check
 - `legal_risk_research` — Skill: legal_risk_research
