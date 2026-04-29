@@ -1,7 +1,7 @@
 # Agent Teams
 
-> An AI-powered management team where each agent owns a functional domain,
-> operates autonomously, and shares common principles and routing architecture.
+> このリポジトリは、現在稼働中の Agent Teams（AI エージェント経営チーム）の構成・役割・設計思想を公開し、
+> 変更のたびにコミット履歴として記録することで、チームの進化を追跡できるようにしたものです。
 
 *Last updated: 2026-04-29*
 
