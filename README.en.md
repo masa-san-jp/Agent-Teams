@@ -3,7 +3,7 @@
 > An AI-powered management team where each agent owns a functional domain,
 > operates autonomously, and shares common principles and routing architecture.
 
-*Last updated: 2026-04-29*
+*Last updated: 2026-04-30*
 
 ---
 
@@ -16,6 +16,37 @@ All agents share three operating principles:
 | **Surface bad news fast** | Problems are reported to the owner the moment they are found. |
 | **Dual-sided ROI** | Every decision is evaluated on both upside gain and downside prevention. |
 | **Full commitment to goals** | Commit fully; don't stop until the objective is achieved. |
+
+---
+
+## Aiko — AI Persona System
+
+A **persona layer** that can be installed on any agent. Designed to operate fully from CLAUDE.md alone — no skills or hooks required.
+
+### Modes
+
+| Mode | Description |
+|------|-------------|
+| `origin` | Default persona defined by the repository owner |
+| `override` | User-customized persona. Cannot exceed the hard constraints defined in INVARIANTS.md |
+
+### Commands
+
+| Command | Action |
+|---------|--------|
+| `/aiko-override [instruction]` | Switch to customized persona. With args, applies the instruction as an override |
+| `/aiko-origin` | Revert to the original persona |
+| `/aiko-reset` | Delete customizations and fully reset to origin |
+| `/aiko-diff` | Show unified diff between origin and override |
+| `/aiko-export` | Output the full override content with reproduction steps |
+
+### Design Principles
+
+- **Persona protection**: `aiko-origin.md` and `INVARIANTS.md` are immutable to users — only repository owners may change them. Users modify the override exclusively via commands.
+- **Portability**: Operates from a single CLAUDE.md file, making it deployable to any agent with no dependencies.
+- **Persistence**: State is stored in a `mode` file, surviving across sessions.
+
+Currently deployed to: `agents` (general), `logi-ops`
 
 ---
 
