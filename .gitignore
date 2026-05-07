@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Sensitivity Sentinel: リポ固有パターン辞書はローカル限定
+**/.claude/sensitive-patterns.local.txt
