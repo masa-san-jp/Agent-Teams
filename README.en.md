@@ -3,7 +3,7 @@
 > An AI-powered management team where each agent owns a functional domain,
 > operates autonomously, and shares common principles and routing architecture.
 
-*Last updated: 2026-05-06*
+*Last updated: 2026-05-08*
 
 ---
 
@@ -174,16 +174,23 @@ All agents share three operating principles:
 ### Skills
 
 - `annual_schedule_alert` — Skill: annual_schedule_alert
+- `complete_task` — complete_task
 - `contract_review` — Skill: contract_review
+- `create_folder_doc` — create_folder_doc
+- `create_training_folder` — create_training_folder
 - `disability_welfare_compliance` — Skill: disability_welfare_compliance
 - `email_archive` — Skill: email_archive
 - `email_triage` — Skill: email_triage
 - `fetch_unread`
+- `fetch_upcoming_nonrecurring_events` — fetch_upcoming_nonrecurring_events
 - `get_mail_body` — Skill: get_mail_body
 - `invoice_ebookkeeping_check` — Skill: invoice_ebookkeeping_check
 - `legal_risk_research` — Skill: legal_risk_research
 - `nda_triage` — Skill: nda_triage
 - `process_migration` — スキル: 業務プロセス移行 (Process Migration)
+- `schedule_task` — schedule_task
+- `show_upcoming_events` — show_upcoming_events
+- `startup_ops_check` — startup_ops_check
 - `task_decomposition` — スキル: オペレーションタスク分解 (Task Decomposition)
 - `task_priority_check` — Skill: task_priority_check
 
@@ -313,75 +320,13 @@ All agents share three operating principles:
 ### Skills
 
 - `automation_script_spec` — スキル: 自動化スクリプト仕様書 (Automation Script Spec)
-- `google_workspace_mcp_setup` — スキル: Google Workspace MCP セットアップ (組織アカウント)
 - `research_increment` — スキル: リサーチ・インクリメント (Research Increment)
-
----
-
-## Common Skills — Inter-agent / External Delegation
-
-Skills available to every agent for inter-agent coordination or delegation to external LLMs. All follow the same pattern: subprocess launch + single-turn non-interactive delegation.
-
-### `/agent-call` — Claude → Claude (different persona)
-
-Asks another agent for a single-turn response with that agent's `.claude/CLAUDE.md`, skills, and hooks loaded. The implementation is a thin wrapper that runs `claude --print` with the target agent's directory as cwd.
-
-| Command | Action |
-|---|---|
-| `/agent-call list` | List available agents |
-| `/agent-call status` | Show claude CLI and agents/ state |
-| `/agent-call <agent-name> "<prompt>"` | Delegate single turn to the named agent |
-
-### `/codex` — Claude → ChatGPT (Codex App Server)
-
-Sends a query to ChatGPT's Codex App Server to bring in a second-model perspective. Used for second-opinion review, parallel research, and code-generation handoff.
-
-| Command | Action |
-|---|---|
-| `/codex setup` | First-time Codex CLI setup |
-| `/codex ask <prompt>` | Single-turn query |
-| `/codex status` | Show authentication state |
-
-### Design
-
-- All are **single-turn, synchronous** (no conversation continuity)
-- Callee session history is not persisted (`--no-session-persistence`, etc.)
-- Parallel invocation is discouraged due to rate limits; serial by default
-- Recursive delegation (a callee invoking the same family of skills) is prohibited; one hop only
-
----
-
-## Common Utilities
-
-Small tools available to every agent for fetching, extracting, and shaping external resources. Not delegation — these focus on retrieval and formatting.
-
-### `/gslides-read` — Google Slides content + speaker notes
-
-Downloads a Google Slides file as `.pptx` via the Drive API and emits each slide's content plus speaker notes as Markdown. Used to fill the gap left by Drive's plain-text export, which drops speaker notes.
-
-| Command | Action |
-|---|---|
-| `/gslides-read setup` | Install dependencies and verify credentials |
-| `/gslides-read <file-id-or-url>` | Print Markdown to stdout |
-| `/gslides-read <file-id-or-url> -o <path>` | Write Markdown to the given path |
-
-Output structure:
-
-```markdown
-## Slide N
-### Content
-(slide body)
-### Speaker Notes
-(notes body)
-```
-
-Implemented with `python-pptx`; authentication uses Drive API Application Default Credentials. Workspace environments may impose constraints on the OAuth flow, so swapping in a self-hosted OAuth client remains an open task.
 
 ---
 
 ## Aiko — AI Persona System
 
-A **persona layer** placed at `Agent-team/Agent-Aiko/`, kept separate from the business agents. Designed to run end-to-end from CLAUDE.md alone so it can be ported to other machines or derivative projects.
+A standalone **persona layer** distributed as a separate project. The canonical distribution lives in [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko). Within this repo, local runtime instances live under `Agent-team/agents/Aiko/` (and `Aiko-Mesugaki/`), which are gitignored. Designed to run end-to-end from CLAUDE.md alone so it can be ported to other machines or derivative projects.
 
 ### Modes
 
@@ -399,13 +344,12 @@ A **persona layer** placed at `Agent-team/Agent-Aiko/`, kept separate from the b
 | `/aiko-reset` | Wipe customization and fully revert to origin. |
 | `/aiko-diff` | Show the diff between origin and override. |
 | `/aiko-export` | Output the full override and reproduction steps. |
-| `/aiko-tasks` | List pending tasks (`### 残課題` blocks in `dev-logs.md`). Count is auto-shown at startup. |
 
 ### Design Principles
 
 - **Persona protection**: `aiko-origin.md` and `INVARIANTS.md` may only be edited by the repository owner. Users can only modify the override through commands.
 - **Portability**: A single CLAUDE.md is sufficient to run, so the persona can be deployed to any agent.
 - **Persistence**: State survives across sessions through the `mode` file.
-- **Placement**: Refactored on 2026-05-01 to live separately from the business agents (`agents/`). Now starts independently from `Agent-team/Agent-Aiko/`.
+- **Placement**: Distributed via the separate repo `github.com/masa-san-jp/Agent-Aiko`. Within this repo, local instances live under `Agent-team/agents/Aiko*/` and are gitignored (not synced).
 
 ---
