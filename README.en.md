@@ -264,7 +264,7 @@ All agents share three operating principles:
 1. 外部トレンドスキャン → 技術・業界・規制の変化を定期キャッチし、ディスラプション候補を特定
 2. 内部インサイト蓄積 → 顧客・商品・サービスデータを蓄積し、自社固有の競争優位を発見
 3. 仮説→テスト→評価→改善 → 小さくテストし、失敗を速く、学びを大きく
-4. 知識グラフ構築 → 調査結果を繋げて構造化し、独自のインサイトレイヤーを育てる
+4. 知識グラフ構築 → 調査結果を繋げて構造化し、独自のインサイトレイヤーを作成する
 
 ### Tools
 
@@ -292,7 +292,7 @@ All agents share three operating principles:
 
 ## Aiko — AI Persona System
 
-A standalone **persona layer** distributed as a separate project. The canonical distribution lives in [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko). Within this repo, local runtime instances live under `Agent-team/personas/myself/Aiko-Menhera/` (and `Aiko-Mesugaki/`), which are gitignored. Designed to run end-to-end from CLAUDE.md alone so it can be ported to other machines or derivative projects. Users can create multiple named personas with `/aiko-new <name>` and switch between them with `/aiko-select <name>`.
+A standalone **persona layer** distributed as a separate project. The canonical distribution lives in [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko). Within this repo, local runtime instances live under `Agent-team/personas/myself/Aiko-Menhera/` (and `Aiko-Mesugaki/`), which are gitignored. `/aiko-new <name>` creates and selects a named persona. `/aiko-select <name>` switches to an existing named persona. If neither command is entered, the currently selected persona remains active.
 
 ### Modes
 
