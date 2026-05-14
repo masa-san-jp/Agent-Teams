@@ -309,7 +309,7 @@ A standalone **persona layer** distributed as a separate project. The canonical 
 | `/aiko-origin` | Switch back to the origin persona. |
 | `/aiko-reset` | Wipe customization and fully revert to origin. |
 | `/aiko-diff` | Show the diff between origin and override. |
-| `/aiko-export` | Output the full override and reproduction steps. |
+| `/aiko-export` | Output a shareable override without user.md. |
 
 ### Design Principles
 
