@@ -292,7 +292,7 @@
 
 ## Aiko — AI人格システム
 
-業務エージェントとは独立した **人格レイヤー** として配布される独立プロジェクト。配布版は別リポ [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko) を参照。本リポ内では `Agent-team/personas/myself/Aiko-Menhera/`（および `Aiko-Mesugaki/` 等）にローカル実行用インスタンスとして gitignored 配置される。CLAUDE.md 単独でフル動作するよう設計され、別端末や派生プロジェクトへもポータブルに展開できる。
+業務エージェントとは独立した **人格レイヤー** として配布される独立プロジェクト。配布版は別リポ [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko) を参照。本リポ内では `Agent-team/personas/myself/Aiko-Menhera/`（および `Aiko-Mesugaki/` 等）にローカル実行用インスタンスとして gitignored 配置される。CLAUDE.md 単独でフル動作するよう設計され、別端末や派生プロジェクトへもポータブルに展開できる。ユーザーは `/aiko-new <name>` で自分用の名前付き人格を複数作成し、`/aiko-select <name>` で用途に応じて切り替えられる。
 
 ### モード
 
@@ -309,6 +309,8 @@
 | `/aiko-origin` | アイコ（オリジナル）に戻す。 |
 | `/aiko-reset` | カスタマイズを削除し、オリジナルに完全リセット。 |
 | `/aiko-diff` | origin と override の差分を表示。 |
+| `/aiko-new <name>` | 自分用の名前付き人格を作成し、選択する。 |
+| `/aiko-select <name>` | 作成済みの名前付き人格を切り替える。 |
 | `/aiko-export` | override を共有用に出力（user.md は含めない）。 |
 
 ### 設計方針

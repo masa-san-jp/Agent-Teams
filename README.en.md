@@ -292,7 +292,7 @@ All agents share three operating principles:
 
 ## Aiko — AI Persona System
 
-A standalone **persona layer** distributed as a separate project. The canonical distribution lives in [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko). Within this repo, local runtime instances live under `Agent-team/personas/myself/Aiko-Menhera/` (and `Aiko-Mesugaki/`), which are gitignored. Designed to run end-to-end from CLAUDE.md alone so it can be ported to other machines or derivative projects.
+A standalone **persona layer** distributed as a separate project. The canonical distribution lives in [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko). Within this repo, local runtime instances live under `Agent-team/personas/myself/Aiko-Menhera/` (and `Aiko-Mesugaki/`), which are gitignored. Designed to run end-to-end from CLAUDE.md alone so it can be ported to other machines or derivative projects. Users can create multiple named personas with `/aiko-new <name>` and switch between them with `/aiko-select <name>`.
 
 ### Modes
 
@@ -309,6 +309,8 @@ A standalone **persona layer** distributed as a separate project. The canonical 
 | `/aiko-origin` | Switch back to the origin persona. |
 | `/aiko-reset` | Wipe customization and fully revert to origin. |
 | `/aiko-diff` | Show the diff between origin and override. |
+| `/aiko-new <name>` | Create and select a named custom persona. |
+| `/aiko-select <name>` | Switch to an existing named persona. |
 | `/aiko-export` | Output a shareable override without user.md. |
 
 ### Design Principles
