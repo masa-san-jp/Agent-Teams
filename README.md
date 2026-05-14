@@ -3,7 +3,7 @@
 > AIが担う経営チーム。各エージェントが担当領域を自律的に運営し、
 > 共通の行動指針とルーティング設計を共有する。
 
-*最終更新: 2026-05-08*
+*最終更新: 2026-05-14*
 
 ---
 
@@ -86,15 +86,6 @@
 
 **判断に迷ったら Sonnet をデフォルトとし、データ取得・ファイル操作・ログ記録は必ず Haiku に落とす。**
 
-### スキル一覧
-
-- `anomaly_triage` — スキル: 財務異常値トリアージ (Anomaly Triage)
-- `financial_analysis` — スキル: 財務分析レポート生成 (Financial Analysis Report)
-- `financial_decision_adr` — スキル: 財務意思決定記録 (Financial Decision Record)
-- `freee_fetch` — freee 試算表フェッチスクリプト
-- `freee_setup` — freee OAuthセットアップスクリプト（初回のみ実行）
-- `scenario_spec` — スキル: シナリオ分析仕様書 (Scenario Spec)
-
 ---
 
 ## HR (`hr`)
@@ -125,10 +116,6 @@
 | 労務法規・助成金・HR施策調査 | `web-researcher` | Sonnet |
 | 規制・トレンドの深掘り検証 | `trend-analyst` | Opus |
 | 調査結果のドキュメント化 | `knowledge-curator` | Sonnet |
-
-### スキル一覧
-
-- `labor_compliance_check` — Skill: labor_compliance_check
 
 ---
 
@@ -183,29 +170,6 @@
 
 **判断に迷ったら Sonnet をデフォルトとし、ファイル操作・変換・ログ記録は必ず Haiku に落とす。法令判断が絡む場合は必ず Opus を使う。**
 
-### スキル一覧
-
-- `annual_schedule_alert` — Skill: annual_schedule_alert
-- `complete_task` — complete_task
-- `contract_review` — Skill: contract_review
-- `create_folder_doc` — create_folder_doc
-- `create_training_folder` — create_training_folder
-- `disability_welfare_compliance` — Skill: disability_welfare_compliance
-- `email_archive` — Skill: email_archive
-- `email_triage` — Skill: email_triage
-- `fetch_unread`
-- `fetch_upcoming_nonrecurring_events` — fetch_upcoming_nonrecurring_events
-- `get_mail_body` — Skill: get_mail_body
-- `invoice_ebookkeeping_check` — Skill: invoice_ebookkeeping_check
-- `legal_risk_research` — Skill: legal_risk_research
-- `nda_triage` — Skill: nda_triage
-- `process_migration` — スキル: 業務プロセス移行 (Process Migration)
-- `schedule_task` — schedule_task
-- `show_upcoming_events` — show_upcoming_events
-- `startup_ops_check` — startup_ops_check
-- `task_decomposition` — スキル: オペレーションタスク分解 (Task Decomposition)
-- `task_priority_check` — Skill: task_priority_check
-
 ---
 
 ## Marketing+Sales (`marke-sales`)
@@ -248,11 +212,6 @@
 | 顧客インサイト深掘り・戦略立案・施策設計 | `insight-analyst` | Opus |
 
 **判断に迷ったら Sonnet をデフォルトとし、ファイル確認・ログ記録は必ず Haiku に落とす。戦略・顧客インサイトの深い分析は必ず Opus を使う。**
-
-### スキル一覧
-
-- `campaign_spec` — スキル: 施策仕様書 (Campaign Spec)
-- `research_sourcing` — スキル: リサーチ情報源管理 (Research Sourcing)
 
 ---
 
@@ -329,16 +288,11 @@
 
 **判断に迷ったら Sonnet をデフォルトとし、深い推論が不要な検索・記録タスクは必ず Haiku に落とす。**
 
-### スキル一覧
-
-- `automation_script_spec` — スキル: 自動化スクリプト仕様書 (Automation Script Spec)
-- `research_increment` — スキル: リサーチ・インクリメント (Research Increment)
-
 ---
 
 ## Aiko — AI人格システム
 
-業務エージェントとは独立した **人格レイヤー** として配布される独立プロジェクト。配布版は別リポ [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko) を参照。本リポ内では `Agent-team/agents/Aiko/`（および `Aiko-Mesugaki/` 等）にローカル実行用インスタンスとして gitignored 配置される。CLAUDE.md 単独でフル動作するよう設計され、別端末や派生プロジェクトへもポータブルに展開できる。
+業務エージェントとは独立した **人格レイヤー** として配布される独立プロジェクト。配布版は別リポ [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko) を参照。本リポ内では `Agent-team/personas/myself/Aiko-Menhera/`（および `Aiko-Mesugaki/` 等）にローカル実行用インスタンスとして gitignored 配置される。CLAUDE.md 単独でフル動作するよう設計され、別端末や派生プロジェクトへもポータブルに展開できる。
 
 ### モード
 
@@ -362,6 +316,6 @@
 - **人格保護**：`aiko-origin.md` と `INVARIANTS.md` はリポジトリ管理者のみ変更可。ユーザーはコマンド経由でのみ override を変更できる
 - **移植性**：CLAUDE.md 1ファイルで動作するため、任意のエージェントへ展開可能
 - **永続性**：`mode` ファイルへの書き込みでセッションをまたいで状態を保持
-- **配置**：配布は別リポ `github.com/masa-san-jp/Agent-Aiko`。本リポでは `Agent-team/agents/Aiko*/` にローカル実行用インスタンスとして gitignored 配置（sync 対象外）
+- **配置**：配布は別リポ `github.com/masa-san-jp/Agent-Aiko`。本リポでは `Agent-team/personas/myself/Aiko*/` にローカル実行用インスタンスとして gitignored 配置（sync 対象外）
 
 ---
