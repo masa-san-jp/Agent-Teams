@@ -19,6 +19,35 @@
 
 ---
 
+## クイックスタート — Reference Pack
+
+このリポジトリには、上記の設計思想と運用モデルを **そのまま動く形で組織に導入できる配布パッケージ** `reference/` を同梱しています。
+受け取り側組織の Claude Code に `reference/INSTALL.md` を読ませれば、ルール・メタエージェント・運用基盤スキル一式を自動でセットアップできます。
+
+```
+reference/
+├── INSTALL.md            ← 受け取り側 Claude Code への導入指示
+├── README.md             ← パッケージの入口
+├── ARCHITECTURE.md       ← 4 層モデル設計
+├── DESIGN-PHILOSOPHY.md  ← 設計思想（深掘り）
+├── SHARING.md            ← 配布時の留意事項
+├── rules/                ← グローバル規約 8 ファイル
+├── meta-agents/          ← reviewer / scout / lab / janitor
+├── skills/               ← 多エージェント運用スキル 8 件
+├── workflow-templates/   ← peer/self review、idea_refine 等 6 件
+├── config-templates/     ← AGENTS.md / spec.json / rules.json / CLAUDE.md / scout_sources.json
+├── tools/                ← agent-call.sh / peer-inbox.sh / meta-check.sh（完全実装）
+└── _scripts/             ← check-placeholders.sh（プレースホルダ・個人情報漏洩検出）
+```
+
+- **全部入りで導入したい**：`reference/INSTALL.md` の手順に従ってください
+- **部分採用したい**：`rules/` だけ、`meta-agents/` だけ、など必要な部分のみコピー可能
+- **設計判断の根拠を理解してから自前で組み立てたい**：`reference/DESIGN-PHILOSOPHY.md` から読んでください
+
+バージョン履歴は [`CHANGELOG.md`](./CHANGELOG.md) を参照。
+
+---
+
 ## 設計思想
 
 全エージェントが共有する3つの行動原則：

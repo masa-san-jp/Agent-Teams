@@ -8,28 +8,22 @@
 
 ## 公開対象（GitHub に同期される）
 
-> **TODO: ここを各リポジトリの実情に合わせて埋める**
->
-> 例：
-> - ソースコード（`src/`、`lib/` 等）
-> - ドキュメント（`README.md`、`docs/`、`VISIBILITY.md`）
-> - 設定の雛形（`.example` 付きのファイル）
-> - 共有スキル・テンプレート（`.claude/skills/`、`templates/` 等）
->
-> 削除して、実際の公開対象のリストに置き換えてください。
+- `README.md` / `README.en.md` — エージェントチーム公開窓口（設計思想・各エージェント解説）
+- `VISIBILITY.md` — 本ファイル（公開境界の仕様）
+- `CHANGELOG.md` — リリース履歴（SemVer）
+- `reference/` — **配布パッケージ本体**（他組織が自社環境に導入できる汎用パック）
+  - `INSTALL.md` / `README.md` / `ARCHITECTURE.md` / `DESIGN-PHILOSOPHY.md` / `SHARING.md`
+  - `rules/` `meta-agents/` `skills/` `workflow-templates/` `config-templates/` `tools/` `_scripts/`
+- `logs/` — 公開ログ（過去の試行錯誤・dev-log の sanitized 版）
+- `.claude/scripts/visibility-check.sh` — 公開境界の自己検証スクリプト
 
 ---
 
 ## 非公開対象（gitignore で除外）
 
-> **TODO: ここを各リポジトリの実情に合わせて埋める**
->
-> 例：
-> - 認証情報（`*.local.json`、`credentials.json`、`token.json`）
-> - 個人作業領域（`local-workspace/`）
-> - 端末固有の状態（`.last-run-*`、`.cache/`）
-> - 個人カスタマイズ（`session-state/auto.jsonl`、`session-state/current.md`）
-> - OS / 言語ランタイム成果物（`.DS_Store`、`__pycache__/`、`node_modules/`）
+- OS / 言語ランタイム成果物（`.DS_Store`、`Thumbs.db`、`__pycache__/`、`*.pyc`）
+- リポ固有 sensitivity パターン辞書（`**/.claude/sensitive-patterns.local.txt`）— 個人 / 案件固有のキーワードが入るためローカル限定
+- 認証情報・個人作業領域・端末固有状態（一般的な慣行に準ずる）
 
 ---
 
@@ -50,12 +44,11 @@
 
 ## 関連リポジトリ
 
-> **TODO: 兄弟リポ・派生リポがあれば記載**
->
-> 例：
-> | リポ | 用途 |
-> |------|------|
-> | `https://github.com/<owner>/<related-repo>` | 開発ログ／設計メモ |
+| リポ | 公開 | 用途 |
+|------|:---:|------|
+| `https://github.com/masa-san-jp/Agent-Teams` | ◯ | 本リポ。エージェントチームの公開窓口と配布パッケージ |
+| `https://github.com/masa-san-jp/Agent-Aiko` | ◯ | Aiko（AI 人格システム）単体の公開配布リポ |
+| `https://github.com/masa-san-jp/Agent-Lab` | × | 非公開の開発・運用実体（Teams 系も Aiko 系もここで開発） |
 
 ---
 
