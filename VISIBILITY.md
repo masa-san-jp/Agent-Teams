@@ -10,6 +10,7 @@
 
 - `README.md` / `README.en.md` — エージェントチーム公開窓口（設計思想・各エージェント解説）
 - `VISIBILITY.md` — 本ファイル（公開境界の仕様）
+- `LICENSE` — MIT License（Copyright (c) 2026 masa-san-jp）
 - `CHANGELOG.md` — リリース履歴（SemVer）
 - `reference/` — **配布パッケージ本体**（他組織が自社環境に導入できる汎用パック）
   - `INSTALL.md` / `README.md` / `ARCHITECTURE.md` / `DESIGN-PHILOSOPHY.md` / `SHARING.md`

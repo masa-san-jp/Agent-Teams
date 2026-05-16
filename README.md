@@ -319,6 +319,14 @@ reference/
 
 ---
 
+## License
+
+MIT License — Copyright (c) 2026 masa-san-jp。詳細は [`LICENSE`](./LICENSE) を参照。
+
+商用・非商用問わず自由に利用・改変・再配布できます。著作権表示と本許諾文を保持してください。
+
+---
+
 ## Aiko — AI人格システム
 
 業務エージェントとは独立した **人格レイヤー** として配布される独立プロジェクト。配布版は別リポ [`github.com/masa-san-jp/Agent-Aiko`](https://github.com/masa-san-jp/Agent-Aiko) を参照。本リポ内では `Agent-team/personas/myself/Aiko-Menhera/`（および `Aiko-Mesugaki/` 等）にローカル実行用インスタンスとして gitignored 配置される。`/aiko-new <name>` を入力すると名前付き人格が作成され、その人格が選択される。`/aiko-select <name>` を入力すると作成済みの人格に切り替わる。これらのコマンドを入力しない場合は、現在選択中の人格がそのまま使われる。

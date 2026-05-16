@@ -6,6 +6,14 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-16
+
+### Added
+
+- `LICENSE`（MIT、Copyright (c) 2026 masa-san-jp）— v0.1.0 はライセンス未設定で受け取り側の利用権が不明確だったため、配布パッケージとして使える状態に修正
+- README.md 末尾に License 言及セクション
+- VISIBILITY.md の公開対象に LICENSE を明記
+
 ## [0.1.0] - 2026-05-16
 
 ### Added
