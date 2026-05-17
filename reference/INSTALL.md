@@ -14,15 +14,27 @@ Claude Code が以下を順に実行します。
 
 ### 0-1. ユーザーへの確認項目
 
-ユーザーに以下を確認してください：
+以下の 6 項目を **1 回でまとめてユーザーに質問してください**（推奨テンプレ）：
 
-1. **配布パッケージの場所**（このファイル `INSTALL.md` を含む `reference/` ディレクトリの絶対パス）
-2. **配置先リポジトリのパス**（例：`/home/user/myorg-repo`）
-3. **組織名**（例：`MyOrg`）
-4. **業務エージェント名のリスト**（例：`engineering, design, qa`）
-   - 後から追加可能なので、初期は最小 1〜2 個でも OK
-5. **デフォルト使用モデル**（既定：`claude-sonnet-4-6`）
-6. **ルール配置スコープ**（既定：**project-local** = `{{ORG_REPO_PATH}}/.claude/rules/`。複数プロジェクト跨ぎが前提なら **global** = `$HOME/.claude/rules/` も可）
+```
+セットアップに必要な情報を 6 項目まとめて確認させてください：
+
+1. REFERENCE_ROOT — この INSTALL.md を含む reference/ ディレクトリの絶対パス
+   （例：/Users/you/Downloads/Agent-Teams/reference）
+2. ORG_REPO_PATH — セットアップ先リポの絶対パス
+   （例：/Users/you/Dev/my-org-repo）
+3. ORG_NAME — 組織名
+   （例：MyOrg）
+4. TEAM_AGENTS — 業務エージェント名のリスト（カンマ区切り、小文字英数字とハイフンのみ）
+   （例：engineering, design, qa。後から追加可能、初期 1〜2 個でも OK）
+5. DEFAULT_MODEL — デフォルト使用モデル
+   （既定：claude-sonnet-4-6）
+6. ルール配置スコープ
+   （既定：project-local = ORG_REPO_PATH/.claude/rules/。
+    複数プロジェクト跨ぎなら global = ~/.claude/rules/ も可）
+```
+
+ユーザーが部分回答（例：4 だけ未定）でもセットアップを進められます。`main` のような最小エージェント 1 個から始めて、後から追加してください。
 
 これらをプレースホルダ値として記録：
 
@@ -65,7 +77,7 @@ test -w "{{ORG_REPO_PATH}}" || { echo "ERROR: {{ORG_REPO_PATH}} is not writable"
 
 ### 0-3. シェル変数のエクスポート
 
-以降の全コマンドでこれらを参照します。Claude Code はセッション内で必ず最初にエクスポートしてください：
+以降の全コマンドでこれらを参照します。Claude Code はセッション内で必ず最初にエクスポート + 業務エージェント配列を準備してください：
 
 ```bash
 export REFERENCE_ROOT="{{REFERENCE_ROOT}}"
@@ -76,7 +88,13 @@ export DEFAULT_MODEL="{{DEFAULT_MODEL}}"
 export CLAUDE_RULES_DIR="{{CLAUDE_RULES_DIR}}"
 # agent-call.sh / peer-inbox.sh が参照する
 export WORKPLACE_ROOT="$ORG_REPO_PATH"
+
+# 業務エージェントは配列で保持（zsh / bash 両対応。"$VAR" の word-split に依存しない）
+AGENTS=(engineering design qa)   # ← Claude Code が user 回答（カンマ→スペース→要素）から組み立てる
+export TEAM_AGENTS_STR="${AGENTS[*]}"   # スペース区切り文字列（Python env var、表示用）
 ```
+
+**重要（zsh 互換性）**：macOS Catalina (2019) 以降のデフォルトシェルは zsh。`for x in $VAR` は zsh で word-split されないため、以降のループは **必ず `"${AGENTS[@]}"` の配列構文**を使ってください。`for agent in $AGENTS` 形式は使用禁止。
 
 ### 0-4. OS 判定（sed の互換性）
 
@@ -121,22 +139,18 @@ mkdir -p Agent-team/tools/{agent-call,peer-inbox,codex}
 
 業務エージェントのディレクトリ作成：
 
-**重要**：`{{TEAM_AGENTS}}` プレースホルダは Claude Code がユーザー回答（カンマ区切り文字列）に置換し、
-**カンマをスペースに変換した文字列**を for ループに渡してください。
+Section 0-3 で定義した `AGENTS` 配列を使います。
 
 ```bash
-# 例: {{TEAM_AGENTS}} = "engineering, design, qa" の場合
-AGENTS="engineering design qa"  # ← Claude Code が組み立てる
-
 # エージェント名バリデーション（小文字英数字とハイフンのみ、先頭末尾ハイフン禁止、空文字禁止）
-for agent in $AGENTS; do
+for agent in "${AGENTS[@]}"; do
   case "$agent" in
     ""|*[!a-z0-9-]*|-*|*-)
       echo "ERROR: invalid agent name: '$agent' (lowercase alnum + '-', no leading/trailing '-', no empty)"; exit 1 ;;
   esac
 done
 
-for agent in $AGENTS; do
+for agent in "${AGENTS[@]}"; do
   mkdir -p "Agent-team/agents/$agent"/{skills,schema,input,output,done}
 done
 ```
@@ -189,16 +203,17 @@ for s in "${SKILLS[@]}"; do
 done
 ```
 
-**プレースホルダ置換**（Python で sed の特殊文字問題を回避）：
+**プレースホルダ置換**（Python で sed の特殊文字問題を回避、heredoc はクォート版で shell 干渉を防ぐ）：
 
 ```bash
 cd "$ORG_REPO_PATH/Agent-team/agents/.claude/skills"
-python3 - <<PY
+TEAM_AGENTS_STR="${TEAM_AGENTS_STR}" python3 - <<'PY'
 import pathlib, os
+team_agents = ", ".join(os.environ.get("TEAM_AGENTS_STR", "").split())
 replacements = {
     "{{ORG_REPO_PATH}}": os.environ["ORG_REPO_PATH"],
     "{{DEFAULT_MODEL}}": os.environ["DEFAULT_MODEL"],
-    "{{TEAM_AGENTS}}":   "<実値: 例 engineering, design, qa>",  # ← Claude Code が実値に置換
+    "{{TEAM_AGENTS}}":   team_agents,
 }
 for p in pathlib.Path(".").rglob("SKILL.md"):
     s = p.read_text(encoding="utf-8")
@@ -208,12 +223,11 @@ for p in pathlib.Path(".").rglob("SKILL.md"):
 PY
 ```
 
-**中間プレースホルダ check（推奨）**：このセクション完了直後にスコープを限定して strict check：
+**中間プレースホルダ check（推奨）**：このセクション完了直後にスコープを限定して receiver check：
 
 ```bash
-bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --strict \
+bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --receiver \
      --target "$ORG_REPO_PATH/Agent-team/agents/.claude/skills"
-# 例外的に意図的に残すプレースホルダがあれば、output を目視で精査
 ```
 
 ---
@@ -238,23 +252,37 @@ cp "$REFERENCE_ROOT/workflow-templates/"{peer_review,self_review,idea_refine,con
 ```bash
 cp "$REFERENCE_ROOT/config-templates/AGENTS.md.template" \
    "$ORG_REPO_PATH/Agent-team/AGENTS.md"
+
+# 事務的な置換は自動で（ORG_REPO_PATH のみ）
+python3 - <<'PY'
+import pathlib, os
+p = pathlib.Path(os.environ["ORG_REPO_PATH"]) / "Agent-team" / "AGENTS.md"
+s = p.read_text(encoding="utf-8")
+s = s.replace("{{ORG_REPO_PATH}}", os.environ["ORG_REPO_PATH"])
+p.write_text(s, encoding="utf-8")
+PY
 ```
 
-その後、ユーザーと一緒に「チーム選択ガイド」のテーブルを業務エージェント名で埋めます。
+その後、ユーザーと一緒に「チーム選択ガイド」のテーブルを業務エージェント名で埋めます（手編集）。
 
 ### 6-2. spec.json
 
 ```bash
 cp "$REFERENCE_ROOT/config-templates/spec.json.template" \
    "$ORG_REPO_PATH/Agent-team/spec.json"
+
+# 事務的な置換（project / organization）を自動化
+python3 - <<'PY'
+import pathlib, os
+p = pathlib.Path(os.environ["ORG_REPO_PATH"]) / "Agent-team" / "spec.json"
+s = p.read_text(encoding="utf-8")
+s = (s.replace("{{ORG_REPO_NAME}}", os.environ["ORG_REPO_NAME"])
+      .replace("{{ORG_NAME}}",      os.environ["ORG_NAME"]))
+p.write_text(s, encoding="utf-8")
+PY
 ```
 
-以下を編集：
-- `project`: `$ORG_REPO_NAME`
-- `organization`: `$ORG_NAME`
-- `goals`: 組織の目標 2 項目
-- `agents[]`: 業務エージェント定義を埋める（メタエージェントは既に含まれている）
-- `data_flows[]`: エージェント間のデータの流れを定義
+残るのは手編集対象（`goals[]` 2 項目、`agents[]` 業務エージェント定義、`data_flows[]`、`{{AGENT_*_NAME}}` `{{AGENT_*_PURPOSE}}`）。
 
 **最小 valid example**（後続スキルが読むため形式ブレを避ける）：
 
@@ -279,7 +307,7 @@ cp "$REFERENCE_ROOT/config-templates/spec.json.template" \
 各エージェントについてループで処理：
 
 ```bash
-for agent in $AGENTS; do
+for agent in "${AGENTS[@]}"; do
   cp "$REFERENCE_ROOT/config-templates/CLAUDE.md.template" \
      "$ORG_REPO_PATH/Agent-team/agents/$agent/CLAUDE.md"
   cp "$REFERENCE_ROOT/config-templates/rules.json.template" \
@@ -290,11 +318,11 @@ done
 プレースホルダ置換（Python で安全に）：
 
 ```bash
-python3 - <<'PY'
-import pathlib, os, sys
+TEAM_AGENTS_STR="${TEAM_AGENTS_STR}" python3 - <<'PY'
+import pathlib, os
 
 org_repo = os.environ["ORG_REPO_PATH"]
-agents = os.environ.get("AGENTS", "").split()
+agents = os.environ.get("TEAM_AGENTS_STR", "").split()
 
 # Claude Code はこの辞書を実値で埋めて渡す。エージェントごとの purpose が異なるため反復構造で。
 agent_purposes = {
@@ -314,12 +342,17 @@ for a in agents:
 PY
 ```
 
-**中間 strict check**：
+**中間 receiver check**（spec.json と AGENTS.md の手編集対象は未完なので、`--target` を絞る）：
 
 ```bash
-bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --strict \
-     --target "$ORG_REPO_PATH/Agent-team"
+# 各業務エージェントの CLAUDE.md / rules.json は自動置換できる範囲を確認
+for agent in "${AGENTS[@]}"; do
+  bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --receiver \
+       --target "$ORG_REPO_PATH/Agent-team/agents/$agent"
+done
 ```
+
+**全体 receiver check は Section 11-5 まで延期**します（spec.json / AGENTS.md / scout_sources.json の手編集が未完のため、ここで全体 check すると false-positive が出る）。
 
 ---
 
@@ -359,10 +392,10 @@ settings.json への追記は手編集だと JSON 構文エラーを起こしや
 SETTINGS_PATH="$ORG_REPO_PATH/.claude/settings.json"   # project-local 推奨
 # あるいは global: SETTINGS_PATH="$HOME/.claude/settings.json"
 
-python3 - <<PY
+SETTINGS_PATH="$SETTINGS_PATH" python3 - <<'PY'
 import json, pathlib, os
 
-path = pathlib.Path(os.environ.get("SETTINGS_PATH", "$SETTINGS_PATH"))
+path = pathlib.Path(os.environ["SETTINGS_PATH"])
 path.parent.mkdir(parents=True, exist_ok=True)
 data = json.loads(path.read_text()) if path.exists() else {}
 
@@ -394,9 +427,20 @@ python3 -c "import json; json.load(open('$SETTINGS_PATH'))" && echo "JSON OK"
 
 ## 8. .gitignore の更新
 
-`$ORG_REPO_PATH/.gitignore` に追記：
+`$ORG_REPO_PATH/.gitignore` に **マーカー付きで追記**（再実行時の二重追記を防ぐ）：
 
-```
+```bash
+GITIGNORE_FILE="$ORG_REPO_PATH/.gitignore"
+BEGIN_MARK="# === BEGIN agent-team ==="
+END_MARK="# === END agent-team ==="
+
+# 既存マーカー間を削除（再実行時冪等化）
+if [ -f "$GITIGNORE_FILE" ] && grep -qF "$BEGIN_MARK" "$GITIGNORE_FILE"; then
+  "${SED_INPLACE[@]}" "/$BEGIN_MARK/,/$END_MARK/d" "$GITIGNORE_FILE"
+fi
+
+cat >> "$GITIGNORE_FILE" <<GITIGNORE_END
+$BEGIN_MARK
 # Meta-agent runtime markers（ローカル実行状態。チーム共有は logs/reviews/YYYY-Www-*.jsonl のみ）
 Agent-team/logs/reviews/.pending/
 Agent-team/logs/reviews/.last-run-*
@@ -416,6 +460,8 @@ Agent-team/tools/peer-inbox/inbox/
 
 # Local workspace
 local-workspace/
+$END_MARK
+GITIGNORE_END
 ```
 
 **設計意図**：
@@ -455,16 +501,23 @@ scout を使う場合は、ホワイトリストを `$REFERENCE_ROOT/config-temp
 ```bash
 cp "$REFERENCE_ROOT/config-templates/scout_sources.json.template" \
    "$ORG_REPO_PATH/Agent-team/skills/scout_sources.json"
+
+# 事務的な置換を自動化（YYYY-MM-DD と ORG_NAME）
+TODAY="$(date +%F)"   # ローカル TZ。UTC 統一なら $(date -u +%F)
+python3 - <<'PY'
+import pathlib, os
+p = pathlib.Path(os.environ["ORG_REPO_PATH"]) / "Agent-team" / "skills" / "scout_sources.json"
+s = p.read_text(encoding="utf-8")
+s = (s.replace("YYYY-MM-DD",  os.environ["TODAY"])
+      .replace("<ORG_NAME>",  os.environ["ORG_NAME"]))
+p.write_text(s, encoding="utf-8")
+PY
 ```
 
-その後、以下を組織値に置換します：
+残るのは手編集対象：
 
-1. **YYYY-MM-DD** → 今日の日付。Section 0-5 で決めた TZ ルールに従う：
-   - ローカル TZ なら `TODAY="$(date +%F)"`
-   - UTC 統一なら `TODAY="$(date -u +%F)"`
-2. **`<example-org>/<example-repo>`** → tier 3 例を実在の curated OSS に置き換える、または該当ソースごと削除
-3. **`<example.com>` `<rejected.example.com>`** → `proposed_sources` `rejected_candidates` の例エントリを削除して空配列にする
-4. **`<ORG_NAME>`** → 組織名
+1. **`<example-org>/<example-repo>`** → tier 3 例を実在の curated OSS に置き換える、または該当ソースごと削除
+2. **`<example.com>` `<rejected.example.com>`** → `proposed_sources` `rejected_candidates` の例エントリを削除して空配列にする
 
 最小構成（tier 1 の 5 件のみで開始）にする場合は、tier 2/3 のサンプルエントリと proposed_sources / rejected_candidates の例エントリを削除して空配列にしてください：
 
@@ -519,20 +572,25 @@ Claude Code セッション内で：
 
 ### 11-5. プレースホルダ置換漏れチェック（**MANDATORY**）
 
-セットアップ完了後、必ず以下を実行してください：
+セットアップ完了後、必ず **`--receiver` モード**で実行してください：
 
 ```bash
-bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --strict --target "$ORG_REPO_PATH"
+bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --receiver --target "$ORG_REPO_PATH"
 ```
 
 → exit 0 なら全プレースホルダが置換済み。
 → exit 1 なら未置換あり。出力された `[STRICT] <file>:<line> 未置換: {{...}}` を一つずつ手動置換してください。
 
-このスクリプトは `$REFERENCE_ROOT/_scripts/check-placeholders.sh` に同梱されています。
-2 モード：
+`--receiver` モードはすべての `{{...}}` を「未置換」として検出し、LEAK パターン（メール・絶対パス）はスキップします。受け取り側の正常な絶対パス（自分のホームディレクトリへの埋め込み）が LEAK 誤検出されません。
 
-- 引数なし: 未定義 `{{...}}`（INSTALL.md セクション 0 にない）と個人情報パターン（メール・個人パス）の漏洩検出
-- `--strict`: すべての `{{...}}` を error 扱い（受け取り側の置換完全性チェック用）
+**`--strict`** は旧名で、`--receiver` と同義です（互換性のため残置）。
+
+スクリプトの 2 モード：
+
+| モード | 検出対象 | 用途 |
+|---|---|---|
+| 引数なし（送り手モード） | 未定義 `{{...}}` + LEAK パターン（メール・個人パス） | 配布前の clean 確認（パッケージ作成側）|
+| `--receiver`（受け手モード）| すべての `{{...}}` 未置換 | 導入後の最終 verification（受け取り側）|
 
 ---
 
@@ -599,7 +657,7 @@ bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --strict --target "$ORG_RE
 ### Q: プレースホルダの置換漏れ
 
 ```bash
-bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --strict --target "$ORG_REPO_PATH"
+bash "$REFERENCE_ROOT/_scripts/check-placeholders.sh" --receiver --target "$ORG_REPO_PATH"
 ```
 
 → exit 1 で出力された箇所が置換漏れ。一つずつ手動 or Python で置換してください。

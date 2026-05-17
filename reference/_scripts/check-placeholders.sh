@@ -3,15 +3,22 @@
 #
 # 用途:
 #   1. 配布前チェック（送り手）: 未定義 {{...}} と個人情報残存を検出
-#   2. 導入後チェック（受け手）: --strict で全プレースホルダ未置換を検出
+#   2. 導入後チェック（受け手）: --receiver で全プレースホルダ未置換を検出（個人パス LEAK は誤検出になるためスキップ）
 #
 # 配置:
 #   reference/_scripts/check-placeholders.sh
 #
 # 実行:
-#   bash reference/_scripts/check-placeholders.sh                # 通常モード
-#   bash reference/_scripts/check-placeholders.sh --strict       # 全 {{...}} を error 扱い
-#   bash reference/_scripts/check-placeholders.sh --target <dir> # 走査対象を指定（既定: スクリプトの親ディレクトリ）
+#   bash reference/_scripts/check-placeholders.sh                  # 送り手モード（既定）：unknown {{...}} と LEAK を検出
+#   bash reference/_scripts/check-placeholders.sh --receiver       # 受け手モード：全 {{...}} 未置換を検出、LEAK はスキップ
+#   bash reference/_scripts/check-placeholders.sh --strict         # --receiver と同義（旧名・互換のため残置）
+#   bash reference/_scripts/check-placeholders.sh --target <dir>   # 走査対象を指定（既定: スクリプトの親ディレクトリ）
+#
+# モード詳細:
+#   送り手モード：許可済プレースホルダ（INSTALL.md セクション 0 で定義）以外の {{...}} を「未定義」として検出。
+#                並行して LEAK_PATTERNS（メール・/Users/* など）を検出。配布前の clean 確認に使う。
+#   受け手モード（--receiver / --strict）：すべての {{...}} を「未置換」として検出。LEAK チェックはスキップ
+#                （受け手の正常な絶対パスを LEAK と誤検出するため）。導入後の最終 verification に使う。
 #
 # 終了コード:
 #   0: 問題なし
@@ -22,12 +29,12 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TARGET_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-STRICT=0
+RECEIVER=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --strict)
-      STRICT=1
+    --receiver|--strict)
+      RECEIVER=1
       shift
       ;;
     --target)
@@ -35,7 +42,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     -h|--help)
-      sed -n '2,20p' "$0"
+      sed -n '2,28p' "$0"
       exit 0
       ;;
     *)
@@ -44,6 +51,8 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
+
+STRICT=$RECEIVER
 
 if [ ! -d "$TARGET_DIR" ]; then
   echo "走査対象ディレクトリが存在しません: $TARGET_DIR" >&2
@@ -81,7 +90,7 @@ echo "============================================"
 echo "check-placeholders.sh"
 echo "  対象: $TARGET_DIR"
 if [ $STRICT -eq 1 ]; then
-  echo "  モード: strict（全 {{...}} を error 扱い）"
+  echo "  モード: receiver（全 {{...}} を未置換として検出、LEAK チェックはスキップ）"
 else
   echo "  モード: 通常（未定義 {{...}} と個人情報を検出）"
 fi

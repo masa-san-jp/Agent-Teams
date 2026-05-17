@@ -65,7 +65,7 @@ Example SessionStart hook for meta-check:
         "hooks": [
           {
             "type": "command",
-            "command": "bash {{ORG_REPO_PATH}}/Agent-team/agents/.claude/scripts/meta-check.sh"
+            "command": "bash <your-org-repo>/Agent-team/agents/.claude/scripts/meta-check.sh"
           }
         ]
       }

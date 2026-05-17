@@ -6,6 +6,34 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-05-17
+
+### Fixed
+
+社内検証（deploy-007、`Agent-Lab/architecture/2026-05-17-deploy-007-internal-test.md`）で発見された 8 件の findings を反映。
+
+**Critical（受け取り側が確実に詰まる zsh 非互換の解消）**
+- **F2 / F3**: `for agent in $AGENTS` を zsh で word-split しない問題を全面修正。配列構文 `AGENTS=(...)` + `"${AGENTS[@]}"` に統一。Python に渡す場合は `TEAM_AGENTS_STR` env var 経由。macOS 標準シェル（zsh）受け取り側でも動作。
+
+**High（UX 改善）**
+- **F4**: Section 6 で `AGENTS.md` の `{{ORG_REPO_PATH}}` と `spec.json` の `{{ORG_REPO_NAME}}` / `{{ORG_NAME}}` を Python 置換で自動化。中間 check の false-positive を削減
+- **F8**: `check-placeholders.sh` に `--receiver` モードを追加（既存 `--strict` と同義のエイリアス）。受け取り側用途を明示し、LEAK パターン（正しい絶対パスの誤検出）を意図的にスキップ。`Section 11-5` MANDATORY check と Troubleshooting も `--receiver` に統一
+
+**Medium**
+- **F5**: Section 7-3 の Python heredoc を `<<'PY'`（クォート版）に変更。shell substitution への依存を排除
+- **F7**: Section 10 で `YYYY-MM-DD` と `<ORG_NAME>` を Python 置換で自動化
+
+**Low**
+- **F1**: Section 0-1 に 6 項目の質問テンプレを明示
+- **F6**: Section 8 の `.gitignore` 追記を `# === BEGIN agent-team ===` / `# === END agent-team ===` マーカー付きにし、再実行時の二重追記を防止
+- (bonus) **rules/hooks.md** の例示中の `{{ORG_REPO_PATH}}` を `<your-org-repo>` に変更。受け取り側の receiver check 誤検出を回避
+
+### Verification
+
+社内検証（マサさんが「初めて kit を受け取った Claude Code」のふりをして実走）：
+- 修正前：受け取り側の最終 check で 17 件の検出（false-positive 含む）、Section 1 の for ループが zsh で**確実に詰まる**
+- 修正後：受け取り側の最終 check は 13 件のみ（すべて `spec.json` の意図的な手編集対象 `{{AGENT_*_NAME}}` 系）、zsh / bash 両対応
+
 ## [0.1.1] - 2026-05-16
 
 ### Added
